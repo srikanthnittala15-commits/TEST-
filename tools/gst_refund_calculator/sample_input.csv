@@ -1,0 +1,4 @@
+client_name,period,category,zero_rated_turnover_goods,zero_rated_turnover_services,domestic_like_supply_value,adjusted_total_turnover,net_itc,inverted_turnover,net_itc_inputs,tax_payable_inverted
+Acme Exports Pvt Ltd,Jul-2026,export_lut,5000000,0,3000000,8000000,450000,,,
+Bright Textiles LLP,Jul-2026,inverted_duty,,,,5000000,,2000000,180000,60000
+Nova Traders,Aug-2026,export_lut,1200000,300000,0,2000000,90000,,,
