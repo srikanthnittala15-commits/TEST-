@@ -58,4 +58,8 @@ AI assistant, Telugu, tax planner, insurance gap check, loan planner, Play Store
 ## Implementation notes (added during build)
 - App lives in `finance-planner/` inside the `TEST-` repo, next to the unrelated `tools/` folder.
 - Admin privacy is enforced in Postgres: the admin has RLS read access only to `client_summaries` and `profiles`. Summary numbers are computed in the client with `/lib/calc` and saved to `client_summaries`, so calculation logic stays in TypeScript.
-- Phase status: Phase 1 done (awaiting review). Next: Phase 2 goal planner.
+- Phase status: all six phases built. Remaining work is account setup (see SETUP-GUIDE.md) and a real-database test of the RLS rules.
+- Goal maths: monthly rate = annual / 12; horizon runs to the end of the target year; "on track" compares the projection from the client's current monthly SIP with the inflated target.
+- Budget: surplus = income - fixed - variable - EMIs - savings; savings rate = savings / income. Emergency fund uses bank + cash divided by fixed + variable + EMIs.
+- Migrations live in `supabase/migrations/` and run in order (0001, 0002).
+- The service worker caches only static assets, never pages or API data, because they hold personal finances.

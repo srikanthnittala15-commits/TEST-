@@ -6,7 +6,7 @@ Planning tool for the practice's clients. Not investment advice. See `CLAUDE.md`
 1. Create a free Supabase project. Note the project URL, anon key and service role key.
 2. In Supabase: Authentication > Providers > Google. Create a Google OAuth client in Google Cloud Console, use the callback URL Supabase shows, and paste the client ID and secret into Supabase.
 3. In Supabase: Authentication > URL Configuration. Add `http://localhost:3000/auth/callback` and your Vercel URL + `/auth/callback` as redirect URLs.
-4. Run `supabase/migrations/0001_init.sql` in the Supabase SQL editor (or `supabase db push`).
+4. Run `supabase/migrations/0001_init.sql`, then `0002_goal_contribution.sql`, in the Supabase SQL editor (or `supabase db push`).
 5. Run `supabase/seed.sql` to register the admin email (edit it first if needed).
 6. `cp .env.example .env.local` and fill in the three values.
 7. `npm install && npm run dev`, then open http://localhost:3000.
@@ -26,3 +26,8 @@ Planning tool for the practice's clients. Not investment advice. See `CLAUDE.md`
 
 ## Deploy (Vercel)
 Import the repo, set the root directory to `finance-planner`, add the three environment variables, deploy. Then add the Vercel URL to Supabase redirect URLs.
+
+## Install on a phone
+Open the deployed site in Chrome (Android) or Safari (iPhone) and choose "Install app" / "Add to Home Screen".
+
+New to this? Read `SETUP-GUIDE.md`.
