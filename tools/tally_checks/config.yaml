@@ -1,0 +1,26 @@
+# Thresholds and column mapping live here, not in code.
+
+# Day Book column aliases (matched case-insensitively, whitespace-collapsed).
+# First alias found in the sheet header wins.
+columns:
+  date: [date]
+  voucher_type: [vch type, voucher type, vch. type]
+  voucher_no: [vch no., vch no, voucher no, voucher number, vch. no.]
+  ledger: [particulars, ledger, ledger name]
+  counter_ledger: [counter ledger, against, by/to, counter-ledger]
+  debit: [debit amount, debit, dr]
+  credit: [credit amount, credit, cr]
+  narration: [narration, remarks]
+
+checks:
+  1:
+    name: Phantom duplicates
+    severity: high
+    window_days: 3
+  3:
+    name: Suspense items
+    severity: high
+    ledger_patterns: [suspense, suspenc]
+  11:
+    name: Blank narrations
+    severity: low
