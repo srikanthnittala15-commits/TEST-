@@ -18,6 +18,12 @@ Profile in, personalised output:
 
 API: `POST /api/match` with JSON profile (`entity_type`, `state`, `sector`, `turnover`, `employees`, `age`, `income`, `gender`, `occupation`, `registrations: [...]`, `startup`, `new_business`, ...).
 
+## Fixing a source
+
+    python collectors.py --debug gst-news     # saves debug_gst-news.html and lists the links it can see
+
+Sources marked `render: true` need a headless browser: `pip install playwright` then `playwright install chromium`.
+
 ## How matching works
 
 Every rule in `data/schemes.yaml` and `data/compliances.yaml` has a `when:` block (entity types, states,

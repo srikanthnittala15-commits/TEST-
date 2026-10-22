@@ -18,7 +18,16 @@ from bs4 import BeautifulSoup
 import db
 from classify import classify
 
-UA = "Mozilla/5.0 (compatible; SchemeComplianceHub/1.0; +research)"
+try:  # use the OS certificate store (fixes "unable to get local issuer certificate" on Windows)
+    import truststore
+    truststore.inject_into_ssl()
+except ImportError:
+    pass
+
+UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+      "Chrome/124.0 Safari/537.36")
+HEADERS = {"User-Agent": UA, "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+           "Accept-Language": "en-IN,en;q=0.9"}
 MIN_TITLE = 15
 
 
@@ -56,12 +65,52 @@ def parse_html(text: str, base: str, selector: str) -> list[tuple[str, str, str]
     return items
 
 
-def fetch(src: dict, timeout: int = 30) -> list[tuple[str, str, str]]:
-    r = requests.get(src["url"], headers={"User-Agent": UA}, timeout=timeout)
+def get_text(src: dict, timeout: int = 30) -> str:
+    """Fetch page text. Sources with `render: true` are loaded in a headless browser (JavaScript sites)."""
+    if src.get("render"):
+        try:
+            from playwright.sync_api import sync_playwright
+        except ImportError:
+            raise RuntimeError("needs a browser: pip install playwright && playwright install chromium")
+        with sync_playwright() as pw:
+            browser = pw.chromium.launch()
+            page = browser.new_page(user_agent=UA)
+            page.goto(src["url"], wait_until="networkidle", timeout=timeout * 1000)
+            html = page.content()
+            browser.close()
+            return html
+    r = requests.get(src["url"], headers=HEADERS, timeout=timeout)
     r.raise_for_status()
+    return r.text
+
+
+def fetch(src: dict, timeout: int = 30) -> list[tuple[str, str, str]]:
+    text = get_text(src, timeout)
     if src["type"] == "rss":
-        return parse_rss(r.text)
-    return parse_html(r.text, src["url"], src.get("selector", "a"))
+        return parse_rss(text.lstrip("\ufeff \r\n\t"))
+    return parse_html(text, src["url"], src.get("selector", "a"))
+
+
+def debug(source_id: str) -> None:
+    """Save the raw response and print what the site actually sends, to help fix a URL/selector."""
+    src = next(s for s in load_sources() if s["id"] == source_id)
+    try:
+        if src.get("render"):
+            text, status, ctype = get_text(src), "rendered", "text/html"
+        else:
+            r = requests.get(src["url"], headers=HEADERS, timeout=30)
+            text, status, ctype = r.text, r.status_code, r.headers.get("content-type")
+    except Exception as exc:
+        print(f"request failed: {exc}")
+        return
+    out = Path(f"debug_{source_id}.html")
+    out.write_text(text, encoding="utf-8")
+    soup = BeautifulSoup(text, "html.parser")
+    links = [(a.get_text(' ', strip=True), a['href']) for a in soup.find_all("a", href=True)]
+    print(f"status={status} type={ctype} bytes={len(text)} links={len(links)} saved={out}")
+    print("first 300 chars:", text[:300].replace("\n", " "))
+    for t, h in [l for l in links if len(l[0]) >= MIN_TITLE][:15]:
+        print(f"  {t[:70]!r} -> {h[:90]}")
 
 
 def run(check_only: bool = False) -> int:
@@ -90,4 +139,6 @@ def run(check_only: bool = False) -> int:
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true")
-    run(ap.parse_args().check)
+    ap.add_argument("--debug", metavar="SOURCE_ID", help="save and summarise one source's raw response")
+    a = ap.parse_args()
+    debug(a.debug) if a.debug else run(a.check)
