@@ -1,0 +1,31 @@
+{% extends "base.html" %}{% block body %}
+<h1>Scheme &amp; Compliance Hub</h1>
+<p>Tell us about yourself or your business. We match government schemes and build your compliance calendar.</p>
+<form action="/results" method="post" class="card">
+ <div class="grid">
+  <div><label>You are</label><select name="entity_type">{% for k,v in entity_types.items() %}<option value="{{k}}">{{v}}</option>{% endfor %}</select></div>
+  <div><label>State / UT</label><select name="state"><option value="">-</option>{% for s in states %}<option value="{{s}}">{{s|pretty}}</option>{% endfor %}</select></div>
+  <div><label>Sector (business)</label><select name="sector"><option value="">-</option>{% for s in sectors %}<option value="{{s}}">{{s|pretty}}</option>{% endfor %}</select></div>
+  <div><label>Annual turnover, Rs (business)</label><input name="turnover" inputmode="numeric" placeholder="e.g. 8500000"></div>
+  <div><label>Employees</label><input name="employees" inputmode="numeric"></div>
+  <div><label>Age (individual)</label><input name="age" inputmode="numeric"></div>
+  <div><label>Annual income, Rs (individual)</label><input name="income" inputmode="numeric"></div>
+  <div><label>Gender</label><select name="gender"><option value="">-</option><option value="female">Female</option><option value="male">Male</option><option value="other">Other</option></select></div>
+  <div><label>Occupation</label><select name="occupation"><option value="">-</option>{% for o in occupations %}<option value="{{o}}">{{o|pretty}}</option>{% endfor %}</select></div>
+ </div>
+ <label>Registrations you hold</label>
+ <div class="chk">{% for k,v in registrations.items() %}<label><input type="checkbox" name="registrations" value="{{k}}">{{v}}</label>{% endfor %}</div>
+ <label>Other</label>
+ <div class="chk">
+  <label><input type="checkbox" name="startup" value="1">DPIIT startup</label>
+  <label><input type="checkbox" name="new_business" value="1">Planning / just started a business</label>
+  <label><input type="checkbox" name="exporter" value="1">Exporter</label>
+  <label><input type="checkbox" name="owns_house" value="1">Own a house</label>
+  <label><input type="checkbox" name="mostly_digital" value="1">95%+ digital transactions</label>
+  <label><input type="checkbox" name="presumptive" value="1">Opted presumptive taxation</label>
+ </div>
+ <button>Show my schemes and deadlines</button>
+</form>
+<form action="/subscribe" method="post" class="card"><b>Get a weekly email digest</b> (uses the profile filled above)
+ <label>Email</label><input type="email" name="email" required><button formaction="/subscribe">Subscribe</button></form>
+{% endblock %}

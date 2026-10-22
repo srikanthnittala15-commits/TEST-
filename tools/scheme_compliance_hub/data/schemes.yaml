@@ -1,0 +1,301 @@
+# Seed scheme catalogue. Benefit figures change with budget announcements - the `verify` field says
+# what to confirm. `level`: central | state. `when` keys: see matcher.eligible().
+
+# ================= BUSINESS - CENTRAL =================
+- id: pmegp
+  title: PMEGP (Prime Minister's Employment Generation Programme)
+  level: central
+  tags: [msme, subsidy, credit, new-business]
+  summary: Credit-linked subsidy (about 15-35% of project cost) for new manufacturing and service units.
+  when: {audience: business, new_business: true, max_turnover: 50000000}
+  source: https://www.kviconline.gov.in/pmegpeportal
+  verify: Project cost ceilings and subsidy percentage by category/area.
+- id: mudra
+  title: PM Mudra Yojana (Shishu / Kishor / Tarun / Tarun Plus)
+  level: central
+  tags: [credit, msme]
+  summary: Collateral-free loans to non-corporate micro and small businesses up to Rs 20 lakh.
+  when: {audience: business, entity_types: [proprietorship, partnership, llp, individual], max_turnover: 50000000}
+  source: https://www.mudra.org.in
+  verify: Current loan ceiling per category.
+- id: cgtmse
+  title: CGTMSE collateral-free credit guarantee
+  level: central
+  tags: [credit, msme]
+  summary: Credit guarantee cover so banks lend to micro and small enterprises without collateral.
+  when: {audience: business, max_turnover: 500000000}
+  source: https://www.cgtmse.in
+  verify: Guarantee cover limit and fee for your category.
+- id: standup-india
+  title: Stand-Up India
+  level: central
+  tags: [credit, women, sc-st, new-business]
+  summary: Bank loans of Rs 10 lakh to Rs 1 crore for greenfield enterprises led by SC/ST or women entrepreneurs.
+  when: {audience: business, new_business: true}
+  source: https://www.standupmitra.in
+  verify: Whether the scheme is currently open and eligible borrower categories.
+- id: dpiit-startup
+  title: Startup India - DPIIT recognition (tax benefits, self-certification, easier procurement)
+  level: central
+  tags: [startup, tax]
+  summary: Recognition unlocks 80-IAC style tax holiday eligibility, angel-tax relief and fast-track IP.
+  when: {audience: business, entity_types: [pvt_ltd, llp, partnership, opc], startup: true, max_turnover: 1000000000}
+  source: https://www.startupindia.gov.in
+  verify: Incorporation cut-off date and turnover limit for the tax holiday.
+- id: sisfs
+  title: Startup India Seed Fund Scheme / Fund of Funds
+  level: central
+  tags: [startup, funding]
+  summary: Grants and convertible instruments for proof of concept, prototype and early commercialisation.
+  when: {audience: business, startup: true}
+  source: https://seedfund.startupindia.gov.in
+  verify: Scheme window and incubator empanelment.
+- id: gem-procurement
+  title: Public Procurement Policy for MSEs and GeM registration
+  level: central
+  tags: [msme, procurement]
+  summary: 25% of central purchases reserved for MSEs; tender fee and EMD relaxations; sell on GeM.
+  when: {audience: business, requires_registrations: [udyam]}
+  source: https://gem.gov.in
+  verify: Reservation for SC/ST and women-owned MSEs.
+- id: udyam
+  title: Udyam registration (gateway to MSME benefits)
+  level: central
+  tags: [msme]
+  summary: Free online registration; needed for priority-sector credit, subsidies and delayed-payment protection.
+  when: {audience: business, excludes_registrations: [udyam], max_turnover: 2500000000}
+  source: https://udyamregistration.gov.in
+  verify: Free registration only on the official Udyam portal.
+- id: zed
+  title: ZED (Zero Defect Zero Effect) certification subsidy
+  level: central
+  tags: [msme, manufacturing, subsidy]
+  summary: Subsidised quality/sustainability certification for MSME manufacturers.
+  when: {audience: business, sectors: [manufacturing, food], requires_registrations: [udyam]}
+  source: https://zed.msme.gov.in
+  verify: Subsidy percentage for your enterprise size.
+- id: pli
+  title: Production Linked Incentive (PLI) schemes
+  level: central
+  tags: [manufacturing, incentive]
+  summary: Incentives on incremental sales for electronics, pharma, auto, food, textiles, solar and more.
+  when: {audience: business, sectors: [manufacturing, food], min_turnover: 10000000}
+  source: https://www.investindia.gov.in
+  verify: Which PLI sector applies and its application window.
+- id: pmfme
+  title: PM Formalisation of Micro Food Processing Enterprises (PMFME)
+  level: central
+  tags: [food, credit, subsidy]
+  summary: 35% credit-linked subsidy (up to Rs 10 lakh) for micro food processing units; seed capital for SHGs.
+  when: {audience: business, sectors: [food], max_turnover: 50000000}
+  source: https://pmfme.mofpi.gov.in
+  verify: Current subsidy cap and district-level product list.
+- id: rodtep
+  title: RoDTEP / RoSCTL export duty remission and Advance Authorisation / EPCG
+  level: central
+  tags: [export, incentive]
+  summary: Remission of embedded taxes on exports and duty-free import of inputs and capital goods.
+  when: {audience: business, requires_registrations: [iec]}
+  source: https://www.dgft.gov.in
+  verify: Notified rates for your HS codes.
+- id: eli-pmvbry
+  title: PM Viksit Bharat Rozgar Yojana (Employment Linked Incentive)
+  level: central
+  tags: [labour, incentive, employer]
+  summary: Incentive to employers for hiring first-time EPFO-covered employees.
+  when: {audience: business, requires_registrations: [pf]}
+  source: https://www.epfindia.gov.in
+  verify: Scheme period, wage band and per-employee incentive.
+- id: pm-vishwakarma
+  title: PM Vishwakarma
+  level: central
+  tags: [artisan, credit, skill]
+  summary: Recognition, skill training, toolkit incentive and low-interest collateral-free loans for artisans of 18 trades.
+  when: {occupations: [artisan]}
+  source: https://pmvishwakarma.gov.in
+  verify: Eligible trade list and loan tranche amounts.
+- id: pm-svanidhi
+  title: PM SVANidhi
+  level: central
+  tags: [credit, street-vendor]
+  summary: Working-capital loans for street vendors with interest subsidy for digital payments.
+  when: {occupations: [street_vendor]}
+  source: https://pmsvanidhi.mohua.gov.in
+  verify: Loan tranche limits.
+- id: pm-surya-ghar
+  title: PM Surya Ghar Muft Bijli Yojana (rooftop solar subsidy)
+  level: central
+  tags: [energy, subsidy, household]
+  summary: Central subsidy for residential rooftop solar and up to 300 free units per month.
+  when: {audience: individual, owns_house: true}
+  source: https://pmsuryaghar.gov.in
+  verify: Subsidy slabs per kW.
+
+# ================= INDIVIDUALS - CENTRAL =================
+- id: pm-kisan
+  title: PM-KISAN
+  level: central
+  tags: [agri, income-support]
+  summary: Rs 6,000 per year in three instalments to eligible farmer families.
+  when: {audience: individual, occupations: [farmer], max_income: 1000000}
+  source: https://pmkisan.gov.in
+  verify: Exclusion list (income-tax payers, institutional landholders) and e-KYC.
+- id: kcc
+  title: Kisan Credit Card
+  level: central
+  tags: [agri, credit]
+  summary: Short-term crop and allied-activity credit at subsidised interest.
+  when: {occupations: [farmer]}
+  source: https://pmkisan.gov.in
+  verify: Interest subvention rate.
+- id: aif
+  title: Agriculture Infrastructure Fund
+  level: central
+  tags: [agri, credit]
+  summary: 3% interest subvention on loans up to Rs 2 crore for post-harvest and farm infrastructure.
+  when: {sectors: [agri]}
+  source: https://agriinfra.dac.gov.in
+  verify: Scheme period and eligible project list.
+- id: pm-kusum
+  title: PM-KUSUM (solar pumps for farmers)
+  level: central
+  tags: [agri, energy, subsidy]
+  summary: Subsidised standalone solar pumps and solarisation of grid pumps.
+  when: {occupations: [farmer]}
+  source: https://pmkusum.mnre.gov.in
+  verify: State implementing agency and subsidy share.
+- id: pmfby
+  title: PM Fasal Bima Yojana (crop insurance)
+  level: central
+  tags: [agri, insurance]
+  summary: Low-premium crop insurance against natural calamities, pests and disease.
+  when: {occupations: [farmer]}
+  source: https://pmfby.gov.in
+  verify: Enrolment cut-off for the season.
+- id: pmay
+  title: PM Awas Yojana (Urban 2.0 / Gramin)
+  level: central
+  tags: [housing, subsidy]
+  summary: Housing subsidy / interest subvention for EWS, LIG and MIG households without a pucca house.
+  when: {audience: individual, max_income: 1800000, owns_house: false}
+  source: https://pmaymis.gov.in
+  verify: Income band-wise subsidy and urban/rural route.
+- id: ab-pmjay
+  title: Ayushman Bharat PM-JAY (health cover Rs 5 lakh per family)
+  level: central
+  tags: [health, insurance]
+  summary: Cashless secondary and tertiary hospitalisation; all citizens aged 70+ are covered under Vay Vandana.
+  when: {audience: individual, max_income: 500000}
+  source: https://pmjay.gov.in
+  verify: SECC/state list inclusion; 70+ enrolment via Vay Vandana card.
+- id: apy
+  title: Atal Pension Yojana
+  level: central
+  tags: [pension, social-security]
+  summary: Guaranteed pension of Rs 1,000-5,000 per month from age 60 for ages 18-40.
+  when: {audience: individual, min_age: 18, max_age: 40}
+  source: https://www.npscra.nsdl.co.in
+  verify: Not open to income-tax payers.
+- id: pmjjby-pmsby
+  title: PMJJBY (life) and PMSBY (accident) micro-insurance
+  level: central
+  tags: [insurance, social-security]
+  summary: Rs 2 lakh cover for about Rs 436 and Rs 20 per year respectively through your bank account.
+  when: {audience: individual, min_age: 18, max_age: 70}
+  source: https://jansuraksha.gov.in
+  verify: Current premium; PMJJBY age limit is 50.
+- id: eshram-pmsym
+  title: e-Shram registration and PM Shram Yogi Maandhan
+  level: central
+  tags: [labour, pension, social-security]
+  summary: Unorganised-worker ID with accident cover; pension scheme for monthly income up to Rs 15,000.
+  when: {audience: individual, occupations: [daily_wage, gig_worker, artisan, street_vendor, farm_labour], min_age: 16, max_age: 59}
+  source: https://eshram.gov.in
+  verify: Not for EPF/ESI/NPS members.
+- id: nsp-scholarship
+  title: National Scholarship Portal (post-matric, merit-cum-means, minority, SC/ST/OBC)
+  level: central
+  tags: [education, scholarship]
+  summary: Central and state scholarships on a single application portal.
+  when: {audience: individual, occupations: [student], max_income: 800000}
+  source: https://scholarships.gov.in
+  verify: Income ceiling and course eligibility per scholarship.
+- id: vidyalaxmi
+  title: PM-Vidyalaxmi education loan
+  level: central
+  tags: [education, credit]
+  summary: Collateral-free, guarantor-free education loans with interest subvention for meritorious students.
+  when: {audience: individual, occupations: [student]}
+  source: https://pmvidyalaxmi.co.in
+  verify: Eligible institutions and income limits for interest subvention.
+- id: ssy
+  title: Sukanya Samriddhi Yojana
+  level: central
+  tags: [savings, girl-child]
+  summary: High-interest tax-advantaged savings account for a girl child below age 10.
+  when: {audience: individual, max_age: 10, gender: [female]}
+  source: https://www.indiapost.gov.in
+  verify: Account opened by parent/guardian; current interest rate.
+- id: scss
+  title: Senior Citizens Savings Scheme / Pradhan Mantri Vaya Vandana
+  level: central
+  tags: [savings, senior-citizen]
+  summary: Assured-return savings for senior citizens through post office / banks.
+  when: {audience: individual, min_age: 60}
+  source: https://www.indiapost.gov.in
+  verify: Current interest rate and deposit limit.
+- id: dayNRLM
+  title: DAY-NRLM / Lakhpati Didi (women self-help groups)
+  level: central
+  tags: [women, credit, livelihood]
+  summary: SHG formation, revolving funds and bank credit at low interest to rural women.
+  when: {audience: individual, gender: [female], max_income: 300000}
+  source: https://aajeevika.gov.in
+  verify: Local SHG availability.
+
+# ================= STATE (sample entries - extend per state) =================
+- id: ts-ipass
+  title: TS-iPASS single-window clearance
+  level: state
+  state: telangana
+  tags: [msme, licence]
+  summary: Time-bound single-window approvals for new industrial units in Telangana.
+  when: {audience: business, states: [telangana], new_business: true}
+  source: https://ipass.telangana.gov.in
+  verify: Current industrial policy incentives.
+- id: tn-uyegp
+  title: UYEGP / NEEDS (Tamil Nadu entrepreneur schemes)
+  level: state
+  state: tamil_nadu
+  tags: [credit, subsidy, new-business]
+  summary: Capital subsidy on bank loans for first-generation entrepreneurs in Tamil Nadu.
+  when: {audience: business, states: [tamil_nadu], new_business: true}
+  source: https://www.msmeonline.tn.gov.in
+  verify: Eligibility age, qualification and subsidy percentage.
+- id: ka-elevate
+  title: Karnataka Elevate (startup grant)
+  level: state
+  state: karnataka
+  tags: [startup, funding]
+  summary: Grant-in-aid for early-stage Karnataka startups.
+  when: {audience: business, states: [karnataka], startup: true}
+  source: https://www.missionstartupkarnataka.org
+  verify: Open call and cohort dates.
+- id: rythu-bharosa
+  title: Rythu Bharosa (Telangana farmer investment support)
+  level: state
+  state: telangana
+  tags: [agri, income-support]
+  summary: Per-acre seasonal investment support for Telangana farmers.
+  when: {audience: individual, states: [telangana], occupations: [farmer]}
+  source: https://rythubharosa.telangana.gov.in
+  verify: Current per-acre amount and land-holding limits.
+- id: kalia-odisha
+  title: KALIA (Odisha farmer livelihood support)
+  level: state
+  state: odisha
+  tags: [agri, income-support]
+  summary: Financial assistance for cultivators and landless agricultural households in Odisha.
+  when: {audience: individual, states: [odisha], occupations: [farmer, farm_labour]}
+  source: https://kalia.odisha.gov.in
+  verify: Scheme status and amounts.

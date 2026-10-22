@@ -1,0 +1,26 @@
+{% extends "base.html" %}{% block body %}
+<p><a href="/">&larr; Change profile</a></p>
+<h1>Your results</h1>
+<h2>Compliance calendar ({{ r.compliances|length }})</h2>
+{% for c in r.compliances %}<div class="card">
+ <b>{{ c.title }}</b> <span class="tag">{{ c.authority }}</span>
+ {% if c.upcoming %}<div>{% for d in c.upcoming[:3] %}<span class="date {% if (d-today).days<=7 %}soon{% endif %}">{{ d|fmtdate }}</span>{% if not loop.last %} &middot; {% endif %}{% endfor %}</div>
+ {% else %}<div class="mut">No fixed date in the next 4 months / varies</div>{% endif %}
+ {% if c.detail %}<div class="mut">{{ c.detail }}</div>{% endif %}
+ {% for n in c.notes %}<div class="mut">&#9888; {{ n }}</div>{% endfor %}
+ <a href="{{ c.source }}" target="_blank" rel="noopener">Official source</a></div>
+{% else %}<p class="mut">No compliance rules matched. Add registrations to see more.</p>{% endfor %}
+<h2>Schemes you may qualify for ({{ r.schemes|length }})</h2>
+{% for s in r.schemes %}<div class="card">
+ <b>{{ s.title }}</b> <span class="tag">{{ s.level }}{% if s.state %}: {{ s.state|pretty }}{% endif %}</span>
+ <div>{{ s.summary }}</div>
+ <div class="mut">Verify: {{ s.verify }}</div>
+ {% for n in s.notes %}<div class="mut">&#9888; {{ n }}</div>{% endfor %}
+ <a href="{{ s.source }}" target="_blank" rel="noopener">Apply / details</a></div>
+{% else %}<p class="mut">No schemes matched yet.</p>{% endfor %}
+<h2>Latest announcements relevant to you</h2>
+{% for a in r.announcements %}<div class="card"><a href="{{ a.url }}" target="_blank" rel="noopener">{{ a.title }}</a>
+ <div class="mut">{{ a.source }}{% if a.published %} &middot; {{ a.published }}{% endif %} &middot; {{ a.kind }}</div>
+ {% for t in a.tags %}<span class="tag">{{ t }}</span>{% endfor %}</div>
+{% else %}<p class="mut">No announcements collected yet. Run <code>python collectors.py</code>.</p>{% endfor %}
+{% endblock %}

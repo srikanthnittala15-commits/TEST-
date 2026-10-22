@@ -1,0 +1,57 @@
+# Official sources polled by collectors.py. type: rss | html.
+# html sources use a CSS `selector` matching <a> elements (title = link text, url = href).
+# URLs and selectors are best-known starting points: government sites restructure often, so
+# run `python collectors.py --check` and adjust any source reporting 0 items.
+- id: pib
+  name: PIB (Press Information Bureau) - all releases
+  type: rss
+  url: https://pib.gov.in/RssMain.aspx?ModId=6&Lang=1&Regid=3
+  tags: [central]
+- id: gst-news
+  name: GST Portal - News and Updates
+  type: html
+  url: https://www.gst.gov.in/newsandupdates
+  selector: "a[href*='newsandupdates'], .news-list a"
+  tags: [gst]
+- id: cbic-notifications
+  name: CBIC - GST notifications
+  type: html
+  url: https://taxinformation.cbic.gov.in/
+  selector: "a[href$='.pdf'], a[href*='notification']"
+  tags: [gst]
+- id: incometax-news
+  name: Income Tax Department - Latest news
+  type: html
+  url: https://www.incometax.gov.in/iec/foportal/latest-news
+  selector: "a[href*='latest-news'], a[href$='.pdf']"
+  tags: [income-tax]
+- id: mca-notices
+  name: MCA - Latest notifications and circulars
+  type: html
+  url: https://www.mca.gov.in/content/mca/global/en/notifications-tab/latest-notifications.html
+  selector: "a[href$='.pdf'], a[href*='notification']"
+  tags: [mca]
+- id: epfo
+  name: EPFO - Circulars and what's new
+  type: html
+  url: https://www.epfindia.gov.in/site_en/index.php
+  selector: "a[href$='.pdf'], a[href*='circular']"
+  tags: [labour, epf]
+- id: dgft
+  name: DGFT - Public notices and notifications
+  type: html
+  url: https://www.dgft.gov.in/CP/?opt=notification
+  selector: "a[href$='.pdf']"
+  tags: [export, dgft]
+- id: startupindia
+  name: Startup India - Latest
+  type: html
+  url: https://www.startupindia.gov.in/content/sih/en/whats-new.html
+  selector: "a"
+  tags: [startup]
+- id: myscheme
+  name: MyScheme - scheme directory (state + central)
+  type: html
+  url: https://www.myscheme.gov.in/search
+  selector: "a[href*='/schemes/']"
+  tags: [scheme]

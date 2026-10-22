@@ -1,0 +1,284 @@
+# Seed compliance rules. Due dates are the statutory/usual dates and are routinely extended by
+# notification - the collectors flag extension announcements; always confirm on the source portal.
+# `when` keys: see matcher.eligible(). `dates` = [[month, day], ...], `monthly_day` = day of month.
+
+# ---------------- GST ----------------
+- id: gstr1-monthly
+  title: GSTR-1 (outward supplies) - monthly filers
+  authority: GST
+  tags: [gst]
+  audience: business
+  monthly_day: 11
+  when: {audience: business, requires_registrations: [gst], excludes_registrations: [gst_composition, gst_qrmp]}
+  detail: Details of outward supplies for the previous month.
+  source: https://www.gst.gov.in
+- id: gstr1-qrmp
+  title: GSTR-1 (QRMP quarterly)
+  authority: GST
+  tags: [gst]
+  dates: [[1, 13], [4, 13], [7, 13], [10, 13]]
+  when: {audience: business, requires_registrations: [gst_qrmp]}
+  detail: Quarterly outward supplies; IFF optional for months 1 and 2 (due the 13th).
+  source: https://www.gst.gov.in
+- id: gstr3b-monthly
+  title: GSTR-3B (summary return and tax payment) - monthly
+  authority: GST
+  tags: [gst]
+  monthly_day: 20
+  when: {audience: business, requires_registrations: [gst], excludes_registrations: [gst_composition, gst_qrmp]}
+  detail: Self-assessed summary return and payment of tax for the previous month.
+  source: https://www.gst.gov.in
+- id: gstr3b-qrmp
+  title: GSTR-3B (QRMP quarterly) + PMT-06 monthly payment
+  authority: GST
+  tags: [gst]
+  dates: [[1, 24], [4, 24], [7, 24], [10, 24]]
+  when: {audience: business, requires_registrations: [gst_qrmp]}
+  detail: Quarterly return due 22nd or 24th depending on state category; PMT-06 monthly challan due the 25th.
+  source: https://www.gst.gov.in
+- id: cmp08
+  title: CMP-08 (composition scheme quarterly statement)
+  authority: GST
+  tags: [gst]
+  dates: [[1, 18], [4, 18], [7, 18], [10, 18]]
+  when: {audience: business, requires_registrations: [gst_composition]}
+  source: https://www.gst.gov.in
+- id: gstr4
+  title: GSTR-4 (composition annual return)
+  authority: GST
+  tags: [gst]
+  dates: [[4, 30]]
+  when: {audience: business, requires_registrations: [gst_composition]}
+  source: https://www.gst.gov.in
+- id: gstr9
+  title: GSTR-9 / 9C (GST annual return and reconciliation)
+  authority: GST
+  tags: [gst]
+  dates: [[12, 31]]
+  when: {audience: business, requires_registrations: [gst], excludes_registrations: [gst_composition]}
+  detail: Optional for aggregate turnover up to Rs 2 crore; 9C reconciliation applies above Rs 5 crore.
+  source: https://www.gst.gov.in
+
+# ---------------- Income tax / TDS ----------------
+- id: tds-payment
+  title: TDS / TCS deposit for previous month
+  authority: Income Tax
+  tags: [income-tax, tds]
+  monthly_day: 7
+  when: {audience: business, requires_registrations: [tan]}
+  detail: March deductions are due 30 April. Government deductors deposit same day.
+  source: https://www.incometax.gov.in
+- id: tds-return
+  title: TDS return (24Q / 26Q / 27Q) - quarterly
+  authority: Income Tax
+  tags: [income-tax, tds]
+  dates: [[7, 31], [10, 31], [1, 31], [5, 31]]
+  when: {audience: business, requires_registrations: [tan]}
+  source: https://www.incometax.gov.in
+- id: form16
+  title: Form 16 to employees (salary TDS certificate)
+  authority: Income Tax
+  tags: [income-tax, tds]
+  dates: [[6, 15]]
+  when: {audience: business, requires_registrations: [tan], min_employees: 1}
+  source: https://www.incometax.gov.in
+- id: advance-tax-business
+  title: Advance tax instalment (15% / 45% / 75% / 100%)
+  authority: Income Tax
+  tags: [income-tax]
+  dates: [[6, 15], [9, 15], [12, 15], [3, 15]]
+  when: {audience: business}
+  detail: Required if estimated tax liability is Rs 10,000 or more. Presumptive-scheme taxpayers pay 100% by 15 March.
+  source: https://www.incometax.gov.in
+- id: advance-tax-individual
+  title: Advance tax instalment (salary + other income)
+  authority: Income Tax
+  tags: [income-tax]
+  dates: [[6, 15], [9, 15], [12, 15], [3, 15]]
+  when: {audience: individual, min_income: 500000}
+  detail: Applies when tax payable after TDS is Rs 10,000 or more. Resident senior citizens without business income are exempt.
+  source: https://www.incometax.gov.in
+- id: itr-non-audit
+  title: Income tax return - non-audit cases
+  authority: Income Tax
+  tags: [income-tax]
+  dates: [[7, 31]]
+  when: {entity_types: [individual, huf, proprietorship, partnership, llp, trust_ngo], tax_audit: false}
+  detail: Individuals, HUFs and non-audit firms. Check for extension notifications each year.
+  source: https://www.incometax.gov.in
+- id: tax-audit-report
+  title: Tax audit report (Form 3CA/3CB-3CD)
+  authority: Income Tax
+  tags: [income-tax, audit]
+  dates: [[9, 30]]
+  when: {audience: business, tax_audit: true}
+  detail: Turnover above Rs 1 crore (Rs 10 crore if cash receipts/payments <= 5%), or presumptive opt-out cases.
+  source: https://www.incometax.gov.in
+- id: itr-audit
+  title: Income tax return - audit cases
+  authority: Income Tax
+  tags: [income-tax]
+  dates: [[10, 31]]
+  when: {audience: business, tax_audit: true, excludes_registrations: []}
+  detail: Proprietors, firms and LLPs whose accounts are audited. Transfer-pricing cases (Form 3CEB) due 30 November.
+  source: https://www.incometax.gov.in
+- id: itr-company
+  title: Income tax return - companies
+  authority: Income Tax
+  tags: [income-tax]
+  dates: [[10, 31]]
+  when: {entity_types: [pvt_ltd, public_ltd, opc]}
+  source: https://www.incometax.gov.in
+
+# ---------------- Companies / LLP (MCA) ----------------
+- id: dir3-kyc
+  title: DIR-3 KYC (director KYC)
+  authority: MCA
+  tags: [mca, roc]
+  dates: [[9, 30]]
+  when: {entity_types: [pvt_ltd, public_ltd, opc, llp]}
+  source: https://www.mca.gov.in
+- id: aoc4
+  title: AOC-4 financial statements (30 days from AGM; shown for AGM on 30 Sep)
+  authority: MCA
+  tags: [mca, roc]
+  dates: [[10, 30]]
+  when: {entity_types: [pvt_ltd, public_ltd, opc]}
+  source: https://www.mca.gov.in
+- id: mgt7
+  title: MGT-7 / 7A annual return (60 days from AGM; shown for AGM on 30 Sep)
+  authority: MCA
+  tags: [mca, roc]
+  dates: [[11, 29]]
+  when: {entity_types: [pvt_ltd, public_ltd, opc]}
+  source: https://www.mca.gov.in
+- id: agm
+  title: Annual General Meeting (not later than 6 months from FY end)
+  authority: MCA
+  tags: [mca, roc]
+  dates: [[9, 30]]
+  when: {entity_types: [pvt_ltd, public_ltd]}
+  source: https://www.mca.gov.in
+- id: dpt3
+  title: DPT-3 return of deposits / outstanding loans
+  authority: MCA
+  tags: [mca, roc]
+  dates: [[6, 30]]
+  when: {entity_types: [pvt_ltd, public_ltd, opc]}
+  source: https://www.mca.gov.in
+- id: msme1
+  title: MSME Form-1 (dues unpaid to MSME suppliers over 45 days)
+  authority: MCA
+  tags: [mca, msme]
+  dates: [[4, 30], [10, 31]]
+  when: {entity_types: [pvt_ltd, public_ltd, opc]}
+  source: https://www.mca.gov.in
+- id: llp-form11
+  title: LLP Form 11 (annual return)
+  authority: MCA
+  tags: [mca, llp]
+  dates: [[5, 30]]
+  when: {entity_types: [llp]}
+  source: https://www.mca.gov.in
+- id: llp-form8
+  title: LLP Form 8 (statement of account and solvency)
+  authority: MCA
+  tags: [mca, llp]
+  dates: [[10, 30]]
+  when: {entity_types: [llp]}
+  source: https://www.mca.gov.in
+
+# ---------------- Labour ----------------
+- id: epf-monthly
+  title: EPF contribution and ECR filing
+  authority: EPFO
+  tags: [labour, epf]
+  monthly_day: 15
+  when: {audience: business, requires_registrations: [pf]}
+  source: https://www.epfindia.gov.in
+- id: esi-monthly
+  title: ESI contribution and return
+  authority: ESIC
+  tags: [labour, esi]
+  monthly_day: 15
+  when: {audience: business, requires_registrations: [esi]}
+  source: https://www.esic.gov.in
+- id: bonus
+  title: Statutory bonus payment (within 8 months of FY end)
+  authority: Labour
+  tags: [labour]
+  dates: [[11, 30]]
+  when: {audience: business, min_employees: 20}
+  detail: Payment of Bonus Act (now within the Code on Wages); eligible employees up to the wage ceiling.
+  source: https://labour.gov.in
+- id: posh
+  title: POSH Internal Committee and annual report to District Officer
+  authority: Labour / WCD
+  tags: [labour, posh]
+  when: {audience: business, min_employees: 10}
+  detail: Constitute an Internal Committee, display the policy, hold awareness sessions, file the annual report.
+  source: https://wcd.nic.in
+- id: professional-tax
+  title: Professional tax (employer deduction and state return)
+  authority: State
+  tags: [labour, state, pt]
+  when:
+    audience: business
+    min_employees: 1
+    states: [karnataka, maharashtra, west_bengal, tamil_nadu, andhra_pradesh, telangana, gujarat, kerala, madhya_pradesh, odisha, assam, bihar, jharkhand, meghalaya, tripura, sikkim, mizoram, chhattisgarh, puducherry]
+  detail: Frequency and due date differ by state (monthly, quarterly or half-yearly). Check your state portal.
+  source: https://www.myscheme.gov.in
+- id: shops-establishments
+  title: Shops and Establishments registration / licence renewal
+  authority: State
+  tags: [state, local]
+  when: {audience: business}
+  detail: Renewal period and fee depend on state and employee count.
+  source: https://labour.gov.in
+- id: trade-licence
+  title: Municipal trade licence / health licence renewal
+  authority: Local body
+  tags: [local]
+  when: {audience: business, sectors: [food, retail, trading, services]}
+  detail: Usually annual, due 31 March in many municipalities. Check your local body.
+  source: https://www.myscheme.gov.in
+
+# ---------------- Sector / licence ----------------
+- id: fssai-annual
+  title: FSSAI annual return (Form D-1) for manufacturers / importers
+  authority: FSSAI
+  tags: [fssai]
+  dates: [[5, 31]]
+  when: {audience: business, requires_registrations: [fssai]}
+  detail: Licence renewal is separate and due before expiry.
+  source: https://foscos.fssai.gov.in
+- id: iec-update
+  title: IEC (Import Export Code) annual update
+  authority: DGFT
+  tags: [dgft, export]
+  dates: [[6, 30]]
+  when: {audience: business, requires_registrations: [iec]}
+  detail: Confirm or update details between April and June every year.
+  source: https://www.dgft.gov.in
+- id: lut
+  title: GST LUT (Letter of Undertaking) for exports without tax payment
+  authority: GST
+  tags: [gst, export]
+  dates: [[3, 31]]
+  when: {audience: business, requires_registrations: [gst, iec]}
+  detail: File for the next financial year before first export of that year.
+  source: https://www.gst.gov.in
+- id: fcra-fc4
+  title: FCRA annual return (FC-4)
+  authority: MHA
+  tags: [fcra, ngo]
+  dates: [[12, 31]]
+  when: {entity_types: [trust_ngo], requires_registrations: [fcra]}
+  source: https://fcraonline.nic.in
+- id: form10b
+  title: Form 10B / 10BB audit report for charitable trusts
+  authority: Income Tax
+  tags: [income-tax, ngo]
+  dates: [[9, 30]]
+  when: {entity_types: [trust_ngo]}
+  source: https://www.incometax.gov.in

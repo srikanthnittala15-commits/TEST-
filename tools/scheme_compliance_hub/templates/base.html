@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scheme &amp; Compliance Hub</title>
+<style>
+:root{--bg:#f7f7f4;--fg:#1c1c1a;--card:#fff;--mut:#666;--ac:#1f6f5c;--bd:#e2e2dc;--warn:#b4531a}
+@media (prefers-color-scheme:dark){:root{--bg:#161614;--fg:#ececE6;--card:#202020;--mut:#9a9a92;--ac:#4cb89e;--bd:#333;--warn:#e69a5e}}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:960px;margin:0 auto;padding:16px}
+h1{font-size:1.5rem}h2{margin-top:2rem;border-bottom:1px solid var(--bd);padding-bottom:.3rem}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;margin:10px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+label{display:block;font-size:.85rem;color:var(--mut);margin-top:8px}
+input,select{width:100%;padding:8px;border:1px solid var(--bd);border-radius:6px;background:var(--card);color:var(--fg);box-sizing:border-box}
+.chk label{display:inline-flex;gap:4px;align-items:center;margin:4px 10px 4px 0;color:var(--fg)}.chk input{width:auto}
+button{background:var(--ac);color:#fff;border:0;padding:10px 18px;border-radius:6px;font-size:1rem;cursor:pointer;margin-top:14px}
+.tag{display:inline-block;font-size:.72rem;padding:1px 8px;border-radius:10px;border:1px solid var(--bd);color:var(--mut);margin:0 4px 2px 0}
+.date{font-weight:600;color:var(--ac)}.soon{color:var(--warn)}.mut{color:var(--mut);font-size:.85rem}
+a{color:var(--ac)}
+</style></head><body><main>{% block body %}{% endblock %}
+<p class="mut">Informational only, not legal or tax advice. Statutory dates are often extended and scheme terms change - confirm on the linked official source before acting.</p>
+</main></body></html>
