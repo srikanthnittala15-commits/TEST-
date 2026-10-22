@@ -18,6 +18,7 @@
   name: CBIC - GST notifications
   type: html
   url: https://taxinformation.cbic.gov.in/
+  render: true
   selector: "a[href$='.pdf'], a[href*='notification']"
   tags: [gst]
 - id: incometax-news

@@ -36,7 +36,7 @@ def load_sources() -> list[dict]:
         return yaml.safe_load(fh)
 
 
-def parse_rss(text: str) -> list[tuple[str, str, str]]:
+def parse_rss(text: str | bytes) -> list[tuple[str, str, str]]:
     root = ET.fromstring(text)
     items = []
     for it in root.iter("item"):
@@ -85,10 +85,12 @@ def get_text(src: dict, timeout: int = 30) -> str:
 
 
 def fetch(src: dict, timeout: int = 30) -> list[tuple[str, str, str]]:
-    text = get_text(src, timeout)
     if src["type"] == "rss":
-        return parse_rss(text.lstrip("\ufeff \r\n\t"))
-    return parse_html(text, src["url"], src.get("selector", "a"))
+        # parse raw bytes so the XML parser honours the declared encoding/BOM (requests guesses wrongly for text/xml)
+        r = requests.get(src["url"], headers=HEADERS, timeout=timeout)
+        r.raise_for_status()
+        return parse_rss(r.content)
+    return parse_html(get_text(src, timeout), src["url"], src.get("selector", "a"))
 
 
 def debug(source_id: str) -> None:
@@ -99,13 +101,14 @@ def debug(source_id: str) -> None:
             text, status, ctype = get_text(src), "rendered", "text/html"
         else:
             r = requests.get(src["url"], headers=HEADERS, timeout=30)
-            text, status, ctype = r.text, r.status_code, r.headers.get("content-type")
+            text, status, ctype = (r.content.decode("utf-8-sig", "replace") if src["type"] == "rss" else r.text,
+                                   r.status_code, r.headers.get("content-type"))
     except Exception as exc:
         print(f"request failed: {exc}")
         return
     out = Path(f"debug_{source_id}.html")
     out.write_text(text, encoding="utf-8")
-    soup = BeautifulSoup(text, "html.parser")
+    soup = BeautifulSoup(text, "html.parser" if src["type"] != "rss" else "html.parser")
     links = [(a.get_text(' ', strip=True), a['href']) for a in soup.find_all("a", href=True)]
     print(f"status={status} type={ctype} bytes={len(text)} links={len(links)} saved={out}")
     print("first 300 chars:", text[:300].replace("\n", " "))
