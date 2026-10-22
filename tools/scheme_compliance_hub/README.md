@@ -1,5 +1,7 @@
 # Scheme & Compliance Hub
 
+> Prototype. The public version lives on wealthkitchen.in (`/schemes` and the calendar's "My situation" filter, repo `wealthkitchen-website`); its `website/assets/schemes.json` is the canonical scheme list. This folder keeps the server-side pieces (collectors, digest, API) for when live announcements are added.
+
 Profile in, personalised output:
 
 1. **Schemes** (central + state, business + individual) the user may qualify for.
