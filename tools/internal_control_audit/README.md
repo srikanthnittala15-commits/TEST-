@@ -16,7 +16,7 @@ Open http://127.0.0.1:8000, enter your name under **Acting as** (required for an
 
 | Tab | Purpose |
 |---|---|
-| Risk & Controls | Risk & Control Matrix (RCM): process, risk, control, type, nature, frequency, key flag, assertion, rating, owner. One-click Indian starter RCM (P2P, O2C, payroll, fixed assets, inventory, financial close, GST/TDS/ROC compliance, ITGC; 34 controls) |
+| Risk & Controls | Risk & Control Matrix (RCM): process, risk, control, type, nature, frequency, key flag, assertion, rating, owner. One-click Indian starter RCM (P2P, O2C, payroll, fixed assets, inventory, financial close, GST/TDS/ROC compliance, ITGC; 33 controls) |
 | Testing | Workpapers: procedure, sample size, exceptions, evidence reference, result, preparer, reviewer sign-off |
 | Findings | Observation, severity, recommendation, management response, owner, due date, closure |
 | Dashboard | Coverage by process, open/overdue findings, indicative IFC conclusion |

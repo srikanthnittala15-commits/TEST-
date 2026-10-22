@@ -1,0 +1,359 @@
+<title>Control Ledger</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap">
+<style>
+/* Layout: a ledger-style workspace. Header with client switcher, tab rail, one working surface below. */
+:root{
+  --bg:#eef1ee; --surface:#fbfcfb; --ink:#16231e; --muted:#5d6d66; --line:#d3dad5;
+  --accent:#1d5a49; --accent-ink:#ffffff; --accent-soft:#dcebe4;
+  --high:#a52a1f; --med:#8a5a00; --low:#2b6a37; --info:#365f8d;
+  --font-display:"IBM Plex Serif",Georgia,serif; --font-body:"IBM Plex Sans",system-ui,sans-serif; --font-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1a16; --surface:#16251f; --ink:#e6eee9; --muted:#9bb0a6; --line:#2a3d35;
+  --accent:#6fc2a4; --accent-ink:#0b1713; --accent-soft:#1d3a2f;
+  --high:#ff9186; --med:#f0bd5a; --low:#8fd39a; --info:#8db7e6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1a16; --surface:#16251f; --ink:#e6eee9; --muted:#9bb0a6; --line:#2a3d35;
+  --accent:#6fc2a4; --accent-ink:#0b1713; --accent-soft:#1d3a2f;
+  --high:#ff9186; --med:#f0bd5a; --low:#8fd39a; --info:#8db7e6; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:14px/1.5 var(--font-body);
+  padding-block:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1180px;margin:0 auto;padding-block:14px 40px}
+header{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--line)}
+h1{font:600 20px/1.2 var(--font-display);margin:0 8px 0 0;color:var(--accent);text-wrap:balance}
+h2{font:600 15px/1.3 var(--font-display);margin:24px 0 8px}
+.grow{flex:1 1 0}
+label.inline{display:flex;gap:6px;align-items:center;color:var(--muted);font-size:12px}
+input,select,textarea,button{font:inherit;color:inherit}
+input,select,textarea{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:5px 8px;min-width:0;max-width:100%}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+button{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:5px 11px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:500}
+button.sm{padding:2px 8px;font-size:12px}
+.mode{font:500 11px var(--font-mono);padding:2px 7px;border:1px solid var(--line);border-radius:3px;color:var(--muted)}
+.mode.shared{color:var(--low);border-color:var(--low)}
+nav{display:flex;gap:2px;overflow-x:auto;border-bottom:1px solid var(--line);margin-bottom:14px}
+nav button{border:0;border-bottom:2px solid transparent;border-radius:0;background:none;padding:10px 14px;color:var(--muted);white-space:nowrap}
+nav button.on{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+#msg{min-height:20px;font-size:13px;color:var(--high)} #msg.ok{color:var(--low)}
+.banner{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);padding:10px 14px;margin-bottom:12px}
+.banner.bad{border-left-color:var(--high)} .banner.warn{border-left-color:var(--med)}
+.banner small{color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.stat{background:var(--surface);padding:10px 12px}
+.stat b{display:block;font:500 24px/1.1 var(--font-mono);font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--muted)}
+.scroll{overflow-x:auto;border:1px solid var(--line);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{padding:7px 10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+th{font:500 11px var(--font-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--bg);position:sticky;top:0}
+tr:last-child td{border-bottom:0}
+td.ref,.mono{font-family:var(--font-mono);font-size:12px}
+small{color:var(--muted);font-size:12px}
+.pill{display:inline-block;font:500 11px var(--font-mono);padding:1px 7px;border:1px solid currentColor;border-radius:9px;white-space:nowrap}
+.High,.Ineffective,.Rejected{color:var(--high)}
+.Medium,.Pending,.In\ progress,.Effective\ with\ exceptions{color:var(--med)}
+.Low,.Effective,.Approved,.Closed{color:var(--low)}
+.Open{color:var(--info)}
+.bar{height:6px;background:var(--line);min-width:70px}.bar i{display:block;height:100%;background:var(--accent)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+.empty{background:var(--surface);border:1px dashed var(--line);padding:28px 20px;text-align:center}
+.empty p{max-width:52ch;margin:6px auto 14px;color:var(--muted)}
+dialog{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:18px;width:min(560px,calc(100vw - 24px));max-height:90vh;overflow:auto}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+dialog h3{font:600 16px var(--font-display);margin:0 0 6px}
+dialog label{display:block;margin:10px 0 3px;font-size:12px;color:var(--muted)}
+dialog label.chk{display:flex;gap:8px;align-items:center;color:var(--ink);font-size:14px}
+dialog input:not([type=checkbox]),dialog select,dialog textarea{width:100%}
+.report{background:#fff;color:#111;padding:20px;border:1px solid var(--line);font:13px/1.5 Georgia,serif}
+.report table{min-width:0;font-size:12px}.report th{position:static;background:#eee;color:#333}.report th,.report td{border:1px solid #999}
+.report h1,.report h2{color:#111}
+.hash{font:11px var(--font-mono);color:var(--muted);word-break:break-all}
+@media (prefers-reduced-motion:no-preference){button{transition:border-color .12s}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Control Ledger</h1>
+    <select id="client" aria-label="Client"></select>
+    <button id="newClient">+ Client</button>
+    <span class="grow"></span>
+    <span id="mode" class="mode">connecting</span>
+    <label class="inline">Acting as <input id="user" placeholder="your name" size="14" autocomplete="off"></label>
+  </header>
+  <nav id="tabs">
+    <button data-tab="dashboard" class="on">Dashboard</button>
+    <button data-tab="rcm">Risks &amp; controls</button>
+    <button data-tab="tests">Testing</button>
+    <button data-tab="findings">Findings</button>
+    <button data-tab="report">Report</button>
+    <button data-tab="log">Audit trail</button>
+  </nav>
+  <div id="msg" role="status"></div>
+  <main id="view"></main>
+</div>
+<dialog id="dlg"><form method="dialog" id="dlgForm"></form></dialog>
+
+<script>
+const RCM = [{"process": "Procure to Pay", "risk": "Purchases made without approved PO", "control": "System blocks GRN/invoice posting without an approved PO", "type": "Preventive", "nature": "Automated", "frequency": "Continuous", "is_key": 1, "assertion": "Occurrence", "risk_rating": "High"}, {"process": "Procure to Pay", "risk": "Payment to vendor for goods not received", "control": "Three-way match (PO, GRN, invoice) before payment release", "type": "Preventive", "nature": "Automated", "frequency": "Continuous", "is_key": 1, "assertion": "Existence", "risk_rating": "High"}, {"process": "Procure to Pay", "risk": "Unauthorised or fictitious vendor creation", "control": "Vendor master changes approved by a person independent of AP; KYC (PAN/GSTIN/bank proof) checked", "type": "Preventive", "nature": "Manual", "frequency": "Per event", "is_key": 1, "assertion": "Occurrence", "risk_rating": "High"}, {"process": "Procure to Pay", "risk": "Duplicate payment of invoices", "control": "Duplicate invoice check (vendor + invoice no. + amount) in system", "type": "Detective", "nature": "Automated", "frequency": "Continuous", "is_key": 0, "assertion": "Completeness", "risk_rating": "Medium"}, {"process": "Procure to Pay", "risk": "TDS not deducted or deducted at wrong rate on vendor payments", "control": "TDS section/rate mapped at vendor master; monthly TDS reconciliation reviewed by finance head", "type": "Preventive", "nature": "Manual", "frequency": "Monthly", "is_key": 1, "assertion": "Presentation", "risk_rating": "High"}, {"process": "Procure to Pay", "risk": "Ineligible or excess ITC claimed", "control": "Monthly GSTR-2B vs books reconciliation; Rule 36(4)/Sec 16(2)(c) exceptions reviewed before GSTR-3B filing", "type": "Detective", "nature": "Manual", "frequency": "Monthly", "is_key": 1, "assertion": "Valuation", "risk_rating": "High"}, {"process": "Procure to Pay", "risk": "MSME vendors paid beyond 45 days (Sec 43B(h) IT Act / MSMED Act)", "control": "MSME ageing report reviewed fortnightly; payment priority flagged", "type": "Detective", "nature": "Manual", "frequency": "Fortnightly", "is_key": 0, "assertion": "Presentation", "risk_rating": "Medium"}, {"process": "Order to Cash", "risk": "Sales to customers beyond credit limit", "control": "System credit-limit block; overrides approved by Sales Head and Finance", "type": "Preventive", "nature": "Automated", "frequency": "Continuous", "is_key": 1, "assertion": "Valuation", "risk_rating": "High"}, {"process": "Order to Cash", "risk": "Revenue recorded without delivery (cut-off error)", "control": "Invoice raised only on dispatch / POD; month-end cut-off review of last 5 days' dispatches", "type": "Detective", "nature": "Manual", "frequency": "Monthly", "is_key": 1, "assertion": "Cut-off", "risk_rating": "High"}, {"process": "Order to Cash", "risk": "Incorrect GST rate / HSN on outward invoices", "control": "HSN-rate master locked; changes approved by tax head; GSTR-1 vs books reconciliation", "type": "Preventive", "nature": "Automated", "frequency": "Continuous", "is_key": 1, "assertion": "Accuracy", "risk_rating": "High"}, {"process": "Order to Cash", "risk": "E-invoice / e-way bill not generated where mandatory", "control": "System generates IRN before invoice print; weekly exception report of invoices without IRN/EWB", "type": "Preventive", "nature": "Automated", "frequency": "Continuous", "is_key": 1, "assertion": "Presentation", "risk_rating": "Medium"}, {"process": "Order to Cash", "risk": "Receivables not collected / unprovided doubtful debts", "control": "Monthly debtor ageing reviewed; ECL / provision approved by CFO", "type": "Detective", "nature": "Manual", "frequency": "Monthly", "is_key": 1, "assertion": "Valuation", "risk_rating": "Medium"}, {"process": "Order to Cash", "risk": "Unauthorised credit notes", "control": "Credit notes above threshold approved by Finance Head; monthly credit note register review", "type": "Preventive", "nature": "Manual", "frequency": "Per event", "is_key": 0, "assertion": "Occurrence", "risk_rating": "Medium"}, {"process": "Payroll & HR", "risk": "Payments to ghost employees", "control": "Monthly payroll vs HR headcount reconciliation; new joiner/leaver changes approved by HR head", "type": "Detective", "nature": "Manual", "frequency": "Monthly", "is_key": 1, "assertion": "Existence", "risk_rating": "High"}, {"process": "Payroll & HR", "risk": "Incorrect salary due to unauthorised master data change", "control": "Payroll master change log reviewed by someone independent of payroll processing", "type": "Detective", "nature": "Manual", "frequency": "Monthly", "is_key": 1, "assertion": "Accuracy", "risk_rating": "High"}, {"process": "Payroll & HR", "risk": "Late or short deposit of PF / ESI / PT / TDS on salary (s.192)", "control": "Statutory calendar with owner and due dates; challan vs payroll register reconciliation", "type": "Detective", "nature": "Manual", "frequency": "Monthly", "is_key": 1, "assertion": "Presentation", "risk_rating": "High"}, {"process": "Fixed Assets", "risk": "Capex without approval", "control": "Capex approved per Delegation of Authority matrix before PO", "type": "Preventive", "nature": "Manual", "frequency": "Per event", "is_key": 1, "assertion": "Occurrence", "risk_rating": "Medium"}, {"process": "Fixed Assets", "risk": "Assets not physically existing / not tagged", "control": "Annual physical verification of fixed assets; differences investigated and approved", "type": "Detective", "nature": "Manual", "frequency": "Annual", "is_key": 1, "assertion": "Existence", "risk_rating": "Medium"}, {"process": "Fixed Assets", "risk": "Incorrect depreciation", "control": "Depreciation run reviewed against asset register and Sch II / IT Act rates", "type": "Detective", "nature": "Manual", "frequency": "Monthly", "is_key": 0, "assertion": "Valuation", "risk_rating": "Low"}, {"process": "Inventory", "risk": "Inventory differences between books and physical", "control": "Periodic physical count by independent team; variance above tolerance approved by management (CARO 2020 cl. 2)", "type": "Detective", "nature": "Manual", "frequency": "Quarterly", "is_key": 1, "assertion": "Existence", "risk_rating": "High"}, {"process": "Inventory", "risk": "Slow/obsolete stock not provided for", "control": "Quarterly ageing review and NRV assessment approved by CFO", "type": "Detective", "nature": "Manual", "frequency": "Quarterly", "is_key": 0, "assertion": "Valuation", "risk_rating": "Medium"}, {"process": "Financial Close", "risk": "Unauthorised or erroneous manual journal entries", "control": "Manual JEs above threshold require independent approval; JE report reviewed monthly for unusual entries (SA 240)", "type": "Detective", "nature": "Manual", "frequency": "Monthly", "is_key": 1, "assertion": "Occurrence", "risk_rating": "High"}, {"process": "Financial Close", "risk": "Bank balances misstated", "control": "Bank reconciliations prepared by one person, reviewed by another within 7 days of month end; old items cleared", "type": "Detective", "nature": "Manual", "frequency": "Monthly", "is_key": 1, "assertion": "Existence", "risk_rating": "High"}, {"process": "Financial Close", "risk": "Intercompany / related-party transactions not identified (Ind AS 24, s.188)", "control": "Related-party register maintained; transactions approved by Audit Committee where required", "type": "Preventive", "nature": "Manual", "frequency": "Quarterly", "is_key": 1, "assertion": "Presentation", "risk_rating": "High"}, {"process": "Financial Close", "risk": "Incorrect or incomplete disclosures in financial statements", "control": "Disclosure checklist (Sch III / Ind AS) completed and reviewed before approval by Board", "type": "Detective", "nature": "Manual", "frequency": "Quarterly", "is_key": 1, "assertion": "Presentation", "risk_rating": "Medium"}, {"process": "Financial Close", "risk": "Subledger and GL out of agreement", "control": "Automated and manual reconciliation of AP, AR, inventory, FA subledgers to GL at month end", "type": "Detective", "nature": "Manual", "frequency": "Monthly", "is_key": 1, "assertion": "Completeness", "risk_rating": "Medium"}, {"process": "Statutory Compliance", "risk": "GST returns (GSTR-1/3B/9/9C) filed late or mismatched", "control": "Compliance calendar; GSTR-3B vs GSTR-1 vs books reconciliation signed off before filing", "type": "Detective", "nature": "Manual", "frequency": "Monthly", "is_key": 1, "assertion": "Presentation", "risk_rating": "High"}, {"process": "Statutory Compliance", "risk": "TDS/TCS returns (24Q/26Q/27Q) late or with errors", "control": "Quarterly TDS return reconciled to books and Form 26AS/AIS before filing", "type": "Detective", "nature": "Manual", "frequency": "Quarterly", "is_key": 1, "assertion": "Presentation", "risk_rating": "High"}, {"process": "Statutory Compliance", "risk": "ROC filings (AOC-4, MGT-7, DIR-3 KYC) missed", "control": "Company secretary maintains ROC calendar; status reported to Board quarterly", "type": "Detective", "nature": "Manual", "frequency": "Quarterly", "is_key": 0, "assertion": "Presentation", "risk_rating": "Medium"}, {"process": "IT General Controls", "risk": "Unauthorised access to financial systems", "control": "Quarterly user access review by system owner; leavers removed within 2 working days", "type": "Detective", "nature": "Manual", "frequency": "Quarterly", "is_key": 1, "assertion": "Occurrence", "risk_rating": "High"}, {"process": "IT General Controls", "risk": "Unauthorised changes to application / master configuration", "control": "Changes tested, approved and migrated through a change-management process with segregated roles", "type": "Preventive", "nature": "Manual", "frequency": "Per event", "is_key": 1, "assertion": "Accuracy", "risk_rating": "High"}, {"process": "IT General Controls", "risk": "Data loss", "control": "Daily backups with quarterly restoration test", "type": "Detective", "nature": "Automated", "frequency": "Daily", "is_key": 0, "assertion": "Completeness", "risk_rating": "Medium"}, {"process": "Entity Level", "risk": "Weak tone at the top / no whistle-blower mechanism (s.177(9))", "control": "Vigil mechanism in place; complaints reported to Audit Committee", "type": "Detective", "nature": "Manual", "frequency": "Quarterly", "is_key": 0, "assertion": "Presentation", "risk_rating": "Medium"}];
+const SAMPLE = {"Annual":1,"Quarterly":2,"Monthly":2,"Fortnightly":3,"Weekly":5,"Daily":25,"Continuous":1,"Per event":25};
+const ENUM = {
+  type:["Preventive","Detective","Corrective"], nature:["Manual","Automated","IT-dependent manual"],
+  rating:["High","Medium","Low"], result:["Effective","Effective with exceptions","Ineffective","Not tested"],
+  status:["Open","In progress","Closed"], entity:["Private Limited","Public Limited","LLP","Partnership","Proprietorship","Trust / NGO"]
+};
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const COLS = ["clients","controls","tests","findings","log"];
+const S = {}; COLS.forEach((c) => S[c] = new Map());
+let db = null, dl = null, userCap = null, myId = null, clientId = null, tab = "dashboard";
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const today = () => new Date().toISOString().slice(0, 10);
+const list = (c) => [...S[c].values()];
+const store = { get(k){ try { return localStorage.getItem(k) } catch { return null } }, set(k, v){ try { localStorage.setItem(k, v) } catch {} } };
+
+/* ---------- storage: shared db when available, else this browser only ---------- */
+let rt = 0; const scheduleRender = () => { cancelAnimationFrame(rt); rt = requestAnimationFrame(render); };
+async function boot() {
+  $("#user").value = store.get("cl_user") || "";
+  try { db = await window.claude?.use?.("db"); } catch { db = null; }
+  try { dl = await window.claude?.use?.("downloads"); } catch { dl = null; }
+  try { userCap = await window.claude?.use?.("user"); myId = userCap ? await userCap.id() : null; } catch { userCap = null; }
+  const m = $("#mode");
+  if (db) {
+    m.textContent = "shared database"; m.className = "mode shared";
+    COLS.forEach((c) => db.collection(c).onSnapshot((snap) => {
+      const map = new Map(); snap.docs.forEach((d) => map.set(d.id, { ...d.data(), id: d.id })); S[c] = map;
+      if (c === "clients") syncClients(); scheduleRender();
+    }, (e) => say("Database error: " + (e.message || e.code))));
+  } else {
+    m.textContent = "this browser only"; m.title = "Sign in to claude.ai to share data between people";
+    try { const raw = JSON.parse(store.get("cl_data") || "{}"); COLS.forEach((c) => (raw[c] || []).forEach((o) => S[c].set(o.id, o))); } catch {}
+    syncClients(); render();
+  }
+}
+async function put(col, obj) {
+  const id = obj.id || uid(); const data = { ...obj }; delete data.id;
+  try {
+    if (db) await db.collection(col).doc(id).set(data);
+    else { S[col].set(id, { ...data, id }); persistLocal(); render(); }
+  } catch (e) { say(e.code === "invalid_argument" ? "You can view this workspace but not change it." : "Could not save: " + (e.message || e.code)); throw e; }
+  return id;
+}
+async function del(col, id) { if (db) await db.collection(col).doc(id).delete(); else { S[col].delete(id); persistLocal(); render(); } }
+function persistLocal() { const o = {}; COLS.forEach((c) => o[c] = list(c)); store.set("cl_data", JSON.stringify(o)); }
+
+/* ---------- tamper-evident log (each entry hashes the previous one) ---------- */
+async function sha(s) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)); return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, "0")).join(""); }
+const logOrder = () => list("log").sort((a, b) => a.seq - b.seq || a.ts.localeCompare(b.ts) || a.id.localeCompare(b.id));
+async function audit(action, entity, entityId, detail = "") {
+  const all = logOrder(), last = all[all.length - 1];
+  const e = { seq: (last ? last.seq : 0) + 1, ts: new Date().toISOString(), actor: actor(), action, entity, entityId, detail: String(detail).slice(0, 400), prev: last ? last.hash : "GENESIS" };
+  e.hash = await sha([e.prev, e.ts, e.actor, e.action, e.entity, e.entityId, e.detail].join("|"));
+  await put("log", e);
+}
+async function verifyChain() {
+  const seen = new Set(["GENESIS"]); const all = logOrder();
+  for (const e of all) {
+    const h = await sha([e.prev, e.ts, e.actor, e.action, e.entity, e.entityId, e.detail].join("|"));
+    if (h !== e.hash || !seen.has(e.prev)) return { valid: false, at: e.seq };
+    seen.add(e.hash);
+  }
+  return { valid: true, n: all.length };
+}
+
+/* ---------- helpers ---------- */
+function say(t, ok) { const m = $("#msg"); m.textContent = t; m.className = ok ? "ok" : ""; if (ok) setTimeout(() => { if (m.textContent === t) m.textContent = ""; }, 3000); }
+const actor = () => $("#user").value.trim();
+function needActor() { if (!actor()) { say("Enter your name under 'Acting as' first. Every action is attributed in the audit trail."); $("#user").focus(); return false; } return true; }
+$("#user").onchange = () => store.set("cl_user", actor());
+const pill = (v) => v ? `<span class="pill ${esc(v)}">${esc(v)}</span>` : "";
+const ctrls = () => list("controls").filter((c) => c.clientId === clientId).sort((a, b) => a.ref.localeCompare(b.ref));
+const tstOf = () => { const ids = new Set(ctrls().map((c) => c.id)); return list("tests").filter((t) => ids.has(t.controlId)).sort((a, b) => b.created.localeCompare(a.created)); };
+const fndOf = () => list("findings").filter((f) => f.clientId === clientId);
+const latestApproved = () => { const m = {}; tstOf().slice().reverse().forEach((t) => { if (t.review === "Approved") m[t.controlId] = t; }); return m; };
+
+function form(title, fields, init = {}) {
+  return new Promise((resolve) => {
+    const f = $("#dlgForm"), d = $("#dlg");
+    f.innerHTML = `<h3>${esc(title)}</h3>` + fields.map(([k, label, type, opts]) => {
+      const v = init[k] ?? "";
+      if (type === "select") return `<label for="f_${k}">${label}</label><select id="f_${k}" name="${k}">${opts.map((o) => { const [val, txt] = Array.isArray(o) ? o : [o, o]; return `<option value="${esc(val)}" ${val == v ? "selected" : ""}>${esc(txt)}</option>`; }).join("")}</select>`;
+      if (type === "textarea") return `<label for="f_${k}">${label}</label><textarea id="f_${k}" name="${k}" rows="3">${esc(v)}</textarea>`;
+      if (type === "checkbox") return `<label class="chk"><input type="checkbox" id="f_${k}" name="${k}" ${v ? "checked" : ""}> ${label}</label>`;
+      return `<label for="f_${k}">${label}</label><input id="f_${k}" name="${k}" type="${type || "text"}" value="${esc(v)}">`;
+    }).join("") + `<div class="row" style="margin-top:16px"><button class="pri" value="ok">Save</button><button value="cancel" formnovalidate>Cancel</button></div>`;
+    d.onclose = () => {
+      if (d.returnValue !== "ok") return resolve(null);
+      const out = {}; for (const [k, , type] of fields) { const el = f.elements[k]; out[k] = type === "checkbox" ? el.checked : el.value.trim(); }
+      resolve(out);
+    };
+    d.returnValue = ""; d.showModal();
+  });
+}
+
+/* ---------- clients ---------- */
+function syncClients() {
+  const cs = list("clients").sort((a, b) => a.name.localeCompare(b.name)), sel = $("#client");
+  sel.innerHTML = cs.map((c) => `<option value="${c.id}">${esc(c.name)} (${esc(c.fy || "")})</option>`).join("");
+  if (!cs.some((c) => c.id === clientId)) clientId = cs[0]?.id || null;
+  if (clientId) sel.value = clientId;
+}
+$("#client").onchange = (e) => { clientId = e.target.value; render(); };
+async function newClient() {
+  if (!needActor()) return;
+  const v = await form("New client", [["name", "Client name"], ["entityType", "Entity type", "select", ENUM.entity], ["fy", "Financial year"]], { fy: "2025-26" });
+  if (!v || !v.name) return;
+  const id = await put("clients", { name: v.name, entityType: v.entityType, fy: v.fy, created: new Date().toISOString() });
+  clientId = id; await audit("create", "client", id, v.name); syncClients(); render();
+}
+$("#newClient").onclick = newClient;
+$("#tabs").onclick = (e) => { const t = e.target.dataset.tab; if (t) setTab(t); };
+function setTab(t) { tab = t; document.querySelectorAll("#tabs button").forEach((b) => b.classList.toggle("on", b.dataset.tab === t)); render(); }
+
+/* ---------- views ---------- */
+function render() {
+  const v = $("#view");
+  if (!clientId) {
+    v.innerHTML = `<div class="empty"><h2 style="margin-top:0">No client yet</h2><p>Add a client to build its risk and control matrix, record control tests, and track findings through to closure. Your first client can start from a ready-made Indian starter matrix of ${RCM.length} controls.</p><button class="pri" id="emptyAdd">Add your first client</button></div>`;
+    $("#emptyAdd").onclick = newClient; return;
+  }
+  ({ dashboard, rcm, tests, findings, report, log: auditLog }[tab])(v);
+}
+
+function metrics() {
+  const cs = ctrls(), latest = latestApproved(), key = cs.filter((c) => c.isKey), fs = fndOf(), ts = tstOf();
+  const byP = {}; cs.forEach((c) => { const p = byP[c.process] ||= { n: 0, tested: 0, bad: 0 }; p.n++; const t = latest[c.id]; if (t) { p.tested++; if (t.result === "Ineffective") p.bad++; } });
+  const keyTested = key.filter((c) => latest[c.id]), keyBad = key.filter((c) => latest[c.id]?.result === "Ineffective"), highBad = keyBad.filter((c) => c.rating === "High");
+  const open = fs.filter((f) => f.status !== "Closed");
+  const sev = (s) => open.filter((f) => f.severity === s).length;
+  let ind, cls = "";
+  if (!key.length) ind = "No key controls defined yet";
+  else if (keyTested.length < key.length) { ind = `Testing incomplete: ${keyTested.length} of ${key.length} key controls reviewed`; cls = "warn"; }
+  else if (highBad.length) { ind = "Indicator of MATERIAL WEAKNESS: key high-risk control(s) ineffective"; cls = "bad"; }
+  else if (keyBad.length) { ind = "Indicator of SIGNIFICANT DEFICIENCY: key control(s) ineffective"; cls = "bad"; }
+  else ind = "No key control failures noted. IFC appears adequate and operating effectively.";
+  return { cs, latest, key, keyTested, byP, ind, cls, sev, overdue: open.filter((f) => f.due && f.due < today()).length, pending: ts.filter((t) => t.review === "Pending").length,
+    pct: cs.length ? Math.round(100 * Object.keys(latest).filter((id) => cs.some((c) => c.id === id)).length / cs.length) : 0,
+    keyPct: key.length ? Math.round(100 * keyTested.length / key.length) : 0, closed: fs.length - open.length };
+}
+const NOTE = "Indicative only. The final IFC conclusion under s.143(3)(i) rests on the auditor's professional judgement.";
+
+function dashboard(v) {
+  const m = metrics(), stat = (n, l) => `<div class="stat"><b>${n}</b><span>${l}</span></div>`;
+  v.innerHTML = `<div class="banner ${m.cls}"><b>${esc(m.ind)}</b><br><small>${NOTE}</small></div>
+  <div class="stats">${stat(m.cs.length, "controls in matrix")}${stat(m.key.length, "key controls")}${stat(m.pct + "%", "tested and reviewed")}${stat(m.keyPct + "%", "key controls covered")}${stat(m.pending, "tests awaiting review")}${stat(m.sev("High"), "open High findings")}${stat(m.overdue, "overdue actions")}</div>
+  <h2>Coverage by process</h2>
+  ${m.cs.length ? `<div class="scroll"><table><tr><th>Process</th><th>Controls</th><th>Tested</th><th>Ineffective</th><th>Progress</th></tr>
+  ${Object.entries(m.byP).map(([p, x]) => `<tr><td>${esc(p)}</td><td class="mono">${x.n}</td><td class="mono">${x.tested}</td><td>${x.bad ? `<span class="pill High">${x.bad}</span>` : `<span class="mono">0</span>`}</td><td><div class="bar"><i style="width:${Math.round(100 * x.tested / x.n)}%"></i></div></td></tr>`).join("")}</table></div>`
+  : `<div class="empty"><p>The matrix is empty. Open Risks &amp; controls to load the starter matrix or add controls one by one.</p><button class="pri" id="go">Go to Risks &amp; controls</button></div>`}`;
+  if ($("#go")) $("#go").onclick = () => setTab("rcm");
+}
+
+const CF = () => [["process", "Process (e.g. Procure to Pay)"], ["risk", "Risk"], ["control", "Control activity", "textarea"], ["type", "Type", "select", ENUM.type], ["nature", "Nature", "select", ENUM.nature], ["frequency", "Frequency", "select", Object.keys(SAMPLE)], ["isKey", "Key control", "checkbox"], ["assertion", "Assertion"], ["rating", "Risk rating", "select", ENUM.rating], ["owner", "Control owner"]];
+function rcm(v) {
+  const cs = ctrls(), latest = latestApproved();
+  v.innerHTML = `<div class="row"><button class="pri" id="add">+ Add control</button>${cs.length ? "" : `<button id="tpl">Load Indian starter matrix (${RCM.length} controls)</button>`}</div>
+  ${cs.length ? `<div class="scroll"><table><tr><th>Ref</th><th>Process</th><th>Risk</th><th>Control</th><th>Type</th><th>Freq.</th><th>Key</th><th>Rating</th><th>Latest result</th><th></th></tr>
+  ${cs.map((c) => `<tr><td class="ref">${esc(c.ref)}</td><td>${esc(c.process)}</td><td>${esc(c.risk)}</td><td>${esc(c.control)}</td><td>${esc(c.type)}<br><small>${esc(c.nature)}</small></td><td>${esc(c.frequency)}</td><td>${c.isKey ? "&#9733;" : ""}</td><td>${pill(c.rating)}</td><td>${pill(latest[c.id]?.result)}</td><td><button class="sm" data-e="${c.id}">Edit</button></td></tr>`).join("")}</table></div>`
+  : `<div class="empty"><p>No controls recorded for this client. The starter matrix covers purchases, sales, payroll, assets, inventory, financial close, GST/TDS/ROC compliance and IT controls, with the Companies Act and CARO references an Indian engagement expects. Edit or delete anything that does not fit.</p></div>`}`;
+  $("#add").onclick = async () => {
+    if (!needActor()) return; const x = await form("Add control", CF(), { type: "Preventive", nature: "Manual", frequency: "Monthly", rating: "Medium" });
+    if (!x || !x.process || !x.risk || !x.control) { if (x) say("Process, risk and control are required."); return; }
+    const ref = "C-" + String(cs.length + 1).padStart(3, "0"); const id = await put("controls", { ...x, ref, clientId, created: new Date().toISOString() }); await audit("create", "control", id, ref);
+  };
+  if ($("#tpl")) $("#tpl").onclick = async () => {
+    if (!needActor()) return; $("#tpl").disabled = true;
+    for (const [i, t] of RCM.entries()) await put("controls", { process: t.process, risk: t.risk, control: t.control, type: t.type, nature: t.nature, frequency: t.frequency, isKey: !!t.is_key, assertion: t.assertion, rating: t.risk_rating, owner: "", ref: "C-" + String(i + 1).padStart(3, "0"), clientId, created: new Date().toISOString() });
+    await audit("load-template", "client", clientId, RCM.length + " controls"); say("Starter matrix loaded", true);
+  };
+  v.querySelectorAll("[data-e]").forEach((b) => b.onclick = async () => {
+    if (!needActor()) return; const c = S.controls.get(b.dataset.e); const x = await form("Edit " + c.ref, CF(), c); if (!x) return;
+    await put("controls", { ...c, ...x }); await audit("update", "control", c.id, c.ref);
+  });
+}
+
+function tests(v) {
+  const cs = ctrls(), ts = tstOf(), byId = Object.fromEntries(cs.map((c) => [c.id, c]));
+  v.innerHTML = `<div class="row"><button class="pri" id="add">+ Record test</button><small>The reviewer must be a different person from the preparer. Reviewed tests are locked.</small></div>
+  ${ts.length ? `<div class="scroll"><table><tr><th>Control</th><th>Procedure</th><th>Sample / exceptions</th><th>Result</th><th>Prepared</th><th>Review</th><th></th></tr>
+  ${ts.map((t) => { const c = byId[t.controlId]; return `<tr><td class="ref">${esc(c?.ref)}<br><small>${esc((c?.control || "").slice(0, 70))}</small></td><td>${esc(t.procedure)}<br><small>${esc(t.evidence)}</small></td><td class="mono">${t.sample} / ${t.exceptions}</td><td>${pill(t.result)}</td><td>${esc(t.preparedBy)}<br><small>${esc(t.date)}</small></td><td>${pill(t.review)}<br><small>${esc(t.reviewedBy || "")} ${esc(t.reviewNote || "")}</small></td><td>${t.review === "Pending" ? `<button class="sm" data-r="${t.id}">Review</button> ` : ""}${t.result === "Ineffective" || t.result === "Effective with exceptions" ? `<button class="sm" data-f="${t.id}">Raise finding</button>` : ""}</td></tr>`; }).join("")}</table></div>`
+  : `<div class="empty"><p>No tests recorded. Record what you checked, how many items you sampled, how many exceptions you found, and where the evidence is. A second person then reviews and approves it before it counts.</p></div>`}`;
+  $("#add").onclick = async () => {
+    if (!cs.length) return say("Add controls first (Risks & controls tab).");
+    if (!needActor()) return;
+    const x = await form("Record test of control", [["controlId", "Control", "select", cs.map((c) => [c.id, c.ref + "  " + c.control.slice(0, 70)])], ["procedure", "Test procedure (inquiry, inspection, re-performance, observation)", "textarea"], ["sample", "Sample size", "number"], ["exceptions", "Exceptions found", "number"], ["evidence", "Evidence reference (file name, folder, screenshot id)"], ["result", "Result", "select", ENUM.result]], { sample: SAMPLE[cs[0].frequency] || 0, exceptions: 0, result: "Effective" });
+    if (!x) return;
+    const sample = +x.sample || 0, exc = +x.exceptions || 0;
+    if (!x.procedure) return say("Describe the test procedure.");
+    if (sample < 0 || exc < 0) return say("Sample and exceptions cannot be negative.");
+    if (exc > sample) return say("Exceptions cannot exceed the sample size.");
+    if (x.result === "Effective" && exc > 0) return say("Exceptions were found, so the result cannot be 'Effective'.");
+    const id = await put("tests", { controlId: x.controlId, procedure: x.procedure, sample, exceptions: exc, evidence: x.evidence, result: x.result, preparedBy: actor(), preparedById: myId, date: today(), review: "Pending", created: new Date().toISOString() });
+    await audit("create", "test", id, `${byId[x.controlId].ref}: ${x.result}`);
+  };
+  v.querySelectorAll("[data-r]").forEach((b) => b.onclick = async () => {
+    if (!needActor()) return; const t = S.tests.get(b.dataset.r);
+    if (t.review !== "Pending") return say("This test was already reviewed and is locked.");
+    if (actor().toLowerCase() === (t.preparedBy || "").toLowerCase() || (myId && t.preparedById && myId === t.preparedById)) return say("Segregation of duties: you prepared this test, so someone else must review it.");
+    const x = await form("Review test", [["status", "Decision", "select", ["Approved", "Rejected"]], ["note", "Review note (required if rejected)", "textarea"]]); if (!x) return;
+    if (x.status === "Rejected" && !x.note) return say("Give a reason when rejecting.");
+    await put("tests", { ...t, review: x.status, reviewedBy: actor(), reviewNote: x.note, reviewedOn: new Date().toISOString() }); await audit(x.status.toLowerCase(), "test", t.id, "by " + actor());
+  });
+  v.querySelectorAll("[data-f]").forEach((b) => b.onclick = () => { const t = S.tests.get(b.dataset.f); newFinding({ controlId: t.controlId, testId: t.id }); });
+}
+
+const FF = () => [["title", "Finding title"], ["observation", "Observation (what, where, how often)", "textarea"], ["severity", "Severity", "select", ENUM.rating], ["recommendation", "Recommendation", "textarea"], ["response", "Management response", "textarea"], ["owner", "Action owner"], ["due", "Due date", "date"]];
+async function newFinding(link = {}) {
+  if (!needActor()) return; const x = await form("Raise finding", FF(), { severity: "Medium" });
+  if (!x) return; if (!x.title) return say("A finding needs a title.");
+  const id = await put("findings", { ...x, ...link, clientId, status: "Open", created: new Date().toISOString() }); await audit("create", "finding", id, x.title); say("Finding raised", true); setTab("findings");
+}
+function findings(v) {
+  const fs = fndOf().sort((a, b) => (a.status === "Closed") - (b.status === "Closed") || ENUM.rating.indexOf(a.severity) - ENUM.rating.indexOf(b.severity));
+  v.innerHTML = `<div class="row"><button class="pri" id="add">+ Raise finding</button></div>
+  ${fs.length ? `<div class="scroll"><table><tr><th>Severity</th><th>Finding</th><th>Recommendation / response</th><th>Owner / due</th><th>Status</th><th></th></tr>
+  ${fs.map((f) => `<tr><td>${pill(f.severity)}</td><td><b>${esc(f.title)}</b><br>${esc(f.observation)}<br><small class="mono">${esc(S.controls.get(f.controlId)?.ref || "")}</small></td><td>${esc(f.recommendation)}<br><small>${esc(f.response)}</small>${f.closureNote ? `<br><small>Closure: ${esc(f.closureNote)}</small>` : ""}</td><td>${esc(f.owner)}<br>${f.due && f.status !== "Closed" && f.due < today() ? `<span class="pill High">overdue ${esc(f.due)}</span>` : `<span class="mono">${esc(f.due)}</span>`}</td><td>${pill(f.status)}</td><td>${f.status === "Closed" ? "" : `<button class="sm" data-u="${f.id}">Update</button>`}</td></tr>`).join("")}</table></div>`
+  : `<div class="empty"><p>No findings. Raise one directly, or from a test with exceptions on the Testing tab.</p></div>`}`;
+  $("#add").onclick = () => newFinding();
+  v.querySelectorAll("[data-u]").forEach((b) => b.onclick = async () => {
+    if (!needActor()) return; const f = S.findings.get(b.dataset.u);
+    const x = await form("Update finding", [["response", "Management response", "textarea"], ["owner", "Action owner"], ["due", "Due date", "date"], ["status", "Status", "select", ENUM.status], ["closureNote", "Closure note: evidence that the fix was verified", "textarea"]], f); if (!x) return;
+    if (x.status === "Closed" && !x.closureNote) return say("To close a finding, record how the remediation was verified.");
+    await put("findings", { ...f, ...x, closedOn: x.status === "Closed" ? new Date().toISOString() : null }); await audit("update", "finding", f.id, `${f.title} -> ${x.status}`);
+  });
+}
+
+function reportHtml() {
+  const c = S.clients.get(clientId), m = metrics(), cs = ctrls(), fs = fndOf().sort((a, b) => ENUM.rating.indexOf(a.severity) - ENUM.rating.indexOf(b.severity));
+  const res = {}; Object.values(m.latest).forEach((t) => { if (cs.some((x) => x.id === t.controlId)) res[t.result] = (res[t.result] || 0) + 1; });
+  return `<h1 style="font-size:20px;margin:0 0 6px">Internal Control Audit Report</h1>
+  <p><b>${esc(c.name)}</b> (${esc(c.entityType)}) &middot; Financial year ${esc(c.fy)} &middot; Generated ${today()}</p>
+  <div style="border:2px solid #333;padding:8px 12px;margin:12px 0"><b>Indicative conclusion:</b> ${esc(m.ind)}<br><small style="color:#444">${NOTE}</small></div>
+  <h2 style="font-size:15px">Summary</h2><ul><li>Controls in scope: ${cs.length} (key: ${m.key.length})</li><li>Tested and reviewed: ${m.pct}% of all controls, ${m.keyPct}% of key controls</li>
+  <li>Results: ${Object.entries(res).map(([k, n]) => `${esc(k)}: ${n}`).join(", ") || "none yet"}</li><li>Open findings: High ${m.sev("High")}, Medium ${m.sev("Medium")}, Low ${m.sev("Low")}; overdue ${m.overdue}</li></ul>
+  <h2 style="font-size:15px">Risk and control matrix with test results</h2>
+  <table><tr><th>Ref</th><th>Process</th><th>Risk</th><th>Control</th><th>Key</th><th>Freq.</th><th>Result</th></tr>${cs.map((x) => `<tr><td>${esc(x.ref)}</td><td>${esc(x.process)}</td><td>${esc(x.risk)}</td><td>${esc(x.control)}</td><td>${x.isKey ? "Key" : ""}</td><td>${esc(x.frequency)}</td><td>${esc(m.latest[x.id]?.result || "Not tested")}</td></tr>`).join("")}</table>
+  <h2 style="font-size:15px">Findings and action plan</h2>
+  <table><tr><th>Control</th><th>Severity</th><th>Observation</th><th>Recommendation</th><th>Management response</th><th>Owner / due</th><th>Status</th></tr>${fs.map((f) => `<tr><td>${esc(S.controls.get(f.controlId)?.ref || "")}</td><td>${esc(f.severity)}</td><td><b>${esc(f.title)}</b><br>${esc(f.observation)}</td><td>${esc(f.recommendation)}</td><td>${esc(f.response)}</td><td>${esc(f.owner)}<br>${esc(f.due)}</td><td>${esc(f.status)}</td></tr>`).join("") || `<tr><td colspan="7">No findings.</td></tr>`}</table>
+  <p><small style="color:#444">Only test results approved by an independent reviewer are shown.</small></p>`;
+}
+function report(v) {
+  v.innerHTML = `<div class="row"><button class="pri" id="dl">Save report (.html)</button><small>Open the saved file and print it or save it as PDF from your browser.</small></div><div class="report">${reportHtml()}</div>`;
+  $("#dl").onclick = async () => {
+    if (!dl) return say("Saving files is not available in this view. Select the report and copy it instead.");
+    const doc = `<!doctype html><meta charset=utf-8><title>Audit report</title><style>body{font:13px/1.5 Georgia,serif;max-width:1000px;margin:2rem auto;padding:0 1rem}table{border-collapse:collapse;width:100%}th,td{border:1px solid #888;padding:4px 6px;vertical-align:top;text-align:left}th{background:#eee}</style>${reportHtml()}`;
+    try { await dl.save({ filename: `audit-report-${S.clients.get(clientId).name.replace(/[^\w]+/g, "-")}.html`, data: doc }); say("Report saved", true); } catch (e) { if (e.code !== "declined") say("Could not save: " + (e.message || e.code)); }
+  };
+}
+
+async function auditLog(v) {
+  const ver = await verifyChain(), l = logOrder().reverse().slice(0, 200);
+  v.innerHTML = `<div class="banner ${ver.valid ? "" : "bad"}">Hash-chain integrity: <b class="${ver.valid ? "Low" : "High"}">${ver.valid ? "VALID (" + ver.n + " entries)" : "BROKEN at entry " + ver.at}</b><br><small>Each entry carries the hash of the one before it, so an edited or removed entry shows up here.</small></div>
+  ${l.length ? `<div class="scroll"><table><tr><th>#</th><th>Time (UTC)</th><th>User</th><th>Action</th><th>Detail</th></tr>${l.map((e) => `<tr><td class="mono">${e.seq}</td><td class="mono">${esc(e.ts.slice(0, 19).replace("T", " "))}</td><td>${esc(e.actor)}</td><td>${esc(e.action)} ${esc(e.entity)}</td><td><small>${esc(e.detail)}</small></td></tr>`).join("")}</table></div>` : `<div class="empty"><p>No activity yet. Everything you add, review or close appears here with your name and the time.</p></div>`}`;
+}
+boot();
+</script>
