@@ -15,6 +15,8 @@
   selector: "a[href*='newsandupdates'], .news-list a"
   tags: [gst]
 - id: cbic-notifications
+  enabled: false
+  note: lists load via an internal API, not page links; needs network-capture support
   name: CBIC - GST notifications
   type: html
   url: https://taxinformation.cbic.gov.in/
@@ -28,6 +30,8 @@
   selector: "a[href*='latest-news'], a[href$='.pdf']"
   tags: [income-tax]
 - id: mca-notices
+  enabled: false
+  note: bot-protected; notification lists are not plain links; PIB and the Acts & Rules page cover it for now
   name: MCA - Latest notifications and circulars
   type: html
   url: https://www.mca.gov.in/content/mca/global/en/notifications-tab/latest-notifications.html

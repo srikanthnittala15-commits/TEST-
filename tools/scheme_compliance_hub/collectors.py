@@ -129,6 +129,9 @@ def run(check_only: bool = False) -> int:
     c = None if check_only else db.conn()
     new_total = 0
     for src in load_sources():
+        if src.get("enabled") is False:
+            print(f"[SKIP] {src['id']}: disabled ({src.get('note', 'see sources.yaml')})")
+            continue
         try:
             items = fetch(src)
         except Exception as exc:  # network/parse failures must not stop other sources
