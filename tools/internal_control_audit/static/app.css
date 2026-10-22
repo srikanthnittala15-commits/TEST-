@@ -1,0 +1,29 @@
+:root{--bg:#f6f5f2;--fg:#1d1d1b;--mut:#6b6a66;--card:#fff;--line:#dcdad3;--acc:#7a3b12;--hi:#b3261e;--med:#b26a00;--lo:#2e6b34}
+@media(prefers-color-scheme:dark){:root{--bg:#17160f;--fg:#ece9df;--mut:#9b988c;--card:#211f17;--line:#3a372b;--acc:#e0a070;--hi:#ff8a80;--med:#ffc266;--lo:#8fd194}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,sans-serif}
+header{display:flex;gap:.6rem;align-items:center;padding:.6rem 1rem;border-bottom:1px solid var(--line);flex-wrap:wrap}
+h1{font-size:1.05rem;margin:0 .6rem 0 0;color:var(--acc)}h2{font-size:1rem;margin:1.2rem 0 .4rem}.grow{flex:1}
+nav{display:flex;gap:.2rem;padding:0 1rem;border-bottom:1px solid var(--line);overflow-x:auto}
+nav button{border:0;background:none;padding:.6rem .9rem;color:var(--mut);cursor:pointer;border-bottom:2px solid transparent;font:inherit}
+nav button.on{color:var(--fg);border-color:var(--acc)}
+main{padding:1rem;max-width:1200px;margin:auto}
+input,select,textarea,button{font:inherit;color:inherit}
+input,select,textarea{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:.3rem .5rem;max-width:100%}
+button{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:.3rem .7rem;cursor:pointer}
+button.pri{background:var(--acc);color:var(--bg);border-color:var(--acc)}a{color:var(--acc)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.6rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.7rem}
+.card b{display:block;font-size:1.6rem}.card span{color:var(--mut);font-size:.8rem}
+.banner{background:var(--card);border-left:4px solid var(--acc);padding:.7rem 1rem;margin-bottom:.8rem}
+table{width:100%;border-collapse:collapse;background:var(--card)}
+th,td{border-bottom:1px solid var(--line);padding:.4rem .5rem;text-align:left;vertical-align:top}
+th{font-size:.75rem;text-transform:uppercase;color:var(--mut)}.scroll{overflow-x:auto}
+.pill{border-radius:10px;padding:.05rem .5rem;font-size:.75rem;border:1px solid currentColor;white-space:nowrap}
+.High,.Ineffective,.Rejected{color:var(--hi)}.Medium,.Pending,.Effective\ with\ exceptions{color:var(--med)}
+.Low,.Effective,.Approved,.Closed{color:var(--lo)}
+#msg{padding:0 1rem;min-height:1.4rem;color:var(--hi)}#msg.ok{color:var(--lo)}
+dialog{border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);width:min(560px,94vw)}
+dialog label{display:block;margin:.5rem 0 .1rem;font-size:.8rem;color:var(--mut)}
+dialog input:not([type=checkbox]),dialog select,dialog textarea{width:100%}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;min-width:80px}.bar i{display:block;height:100%;background:var(--acc)}
+.row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin:.5rem 0}

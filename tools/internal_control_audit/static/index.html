@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Internal Control &amp; Audit Tool</title>
+<link rel="stylesheet" href="app.css"></head>
+<body>
+<header>
+  <h1>Internal Control &amp; Audit</h1>
+  <select id="client" aria-label="Client"></select>
+  <button id="newClient">+ Client</button>
+  <span class="grow"></span>
+  <label>Acting as <input id="user" placeholder="your name" size="14"></label>
+  <a id="reportLink" target="_blank">Report</a>
+</header>
+<nav id="tabs">
+  <button data-tab="dashboard" class="on">Dashboard</button>
+  <button data-tab="rcm">Risk &amp; Controls</button>
+  <button data-tab="tests">Testing</button>
+  <button data-tab="findings">Findings</button>
+  <button data-tab="log">Audit trail</button>
+</nav>
+<div id="msg" role="status"></div>
+<main id="view"></main>
+<dialog id="dlg"><form method="dialog" id="dlgForm"></form></dialog>
+<script src="app.js"></script>
+</body></html>
