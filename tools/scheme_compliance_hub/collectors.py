@@ -73,7 +73,11 @@ def get_text(src: dict, timeout: int = 30) -> str:
         except ImportError:
             raise RuntimeError("needs a browser: pip install playwright && playwright install chromium")
         with sync_playwright() as pw:
-            browser = pw.chromium.launch()
+            # `headed: true` opens a visible installed Chrome - gets past some bot-protection (e.g. MCA/Akamai)
+            opts = {"headless": not src.get("headed"), "args": ["--disable-blink-features=AutomationControlled"]}
+            if src.get("headed"):
+                opts["channel"] = "chrome"
+            browser = pw.chromium.launch(**opts)
             page = browser.new_page(user_agent=UA)
             page.goto(src["url"], wait_until="networkidle", timeout=timeout * 1000)
             html = page.content()

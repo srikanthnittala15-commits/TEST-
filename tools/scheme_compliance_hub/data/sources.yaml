@@ -32,6 +32,7 @@
   type: html
   url: https://www.mca.gov.in/content/mca/global/en/notifications-tab/latest-notifications.html
   render: true
+  headed: true
   selector: "a[href$='.pdf'], a[href*='notification']"
   tags: [mca]
 - id: epfo
