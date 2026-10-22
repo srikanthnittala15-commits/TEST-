@@ -97,9 +97,11 @@ def fetch(src: dict, timeout: int = 30) -> list[tuple[str, str, str]]:
     return parse_html(get_text(src, timeout), src["url"], src.get("selector", "a"))
 
 
-def debug(source_id: str) -> None:
+def debug(source_id: str, url: str | None = None, match: str | None = None) -> None:
     """Save the raw response and print what the site actually sends, to help fix a URL/selector."""
-    src = next(s for s in load_sources() if s["id"] == source_id)
+    src = dict(next(s for s in load_sources() if s["id"] == source_id))
+    if url:
+        src["url"] = url
     try:
         if src.get("render"):
             text, status, ctype = get_text(src), "rendered", "text/html"
@@ -116,7 +118,10 @@ def debug(source_id: str) -> None:
     links = [(a.get_text(' ', strip=True), a['href']) for a in soup.find_all("a", href=True)]
     print(f"status={status} type={ctype} bytes={len(text)} links={len(links)} saved={out}")
     print("first 300 chars:", text[:300].replace("\n", " "))
-    for t, h in [l for l in links if len(l[0]) >= MIN_TITLE][:15]:
+    shown = [l for l in links if len(l[0]) >= MIN_TITLE]
+    if match:
+        shown = [l for l in shown if match.lower() in (l[0] + l[1]).lower()]
+    for t, h in shown[:40]:
         print(f"  {t[:70]!r} -> {h[:90]}")
 
 
@@ -147,5 +152,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--debug", metavar="SOURCE_ID", help="save and summarise one source's raw response")
+    ap.add_argument("--url", help="with --debug: try this page instead of the source's URL")
+    ap.add_argument("--match", help="with --debug: only list links containing this word")
     a = ap.parse_args()
-    debug(a.debug) if a.debug else run(a.check)
+    debug(a.debug, a.url, a.match) if a.debug else run(a.check)
